@@ -1,6 +1,6 @@
 [project]
-name = "cairos_types"
-version = "0.1"
+name = "cairos-types"
+version = "0.1.1"
 description = "Datatype definitions for Cairos"
 readme = "README.md"
 authors = [
