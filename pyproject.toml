@@ -1,0 +1,35 @@
+[project]
+name = "cairos_types"
+version = "0.1"
+description = "Datatype definitions for Cairos"
+readme = "README.md"
+authors = [
+    {name = "Bottleship", email = "kalin.petkov@bottleshipvfx.com"},
+]
+maintainers = [
+    {name = "Kalin Petkov", email = "kalin.petkov@bottleshipvfx.com"},
+    {name = "Mois Moshev", email = "mois.moshev@bottleshipvfx.com"}
+]
+
+dependencies = [
+  "pydantic<2"
+  ]
+
+license = {text = ""}
+requires-python = ">=3.10.6"
+
+[project.optional-dependencies]
+
+test = ["pytest", "coverage", "pytest-cov","pytest-html"]
+
+[project.urls]
+Homepage = "bottleshipvfx.com"
+
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = [
+    "cairos_types",
+]
