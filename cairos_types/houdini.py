@@ -21,7 +21,7 @@ class CairosHoudiniConfig(BaseSettings):
     output_exec_parm_name: str = "execute"
     avatar_node_path: str = "/obj/geo_avatar_rest/file2"
     avatar_parm_name: str = "file"
-    geo_node_path: str = "/obj/geo_sequence_clips/btl_motions_json_from_gpt_to_points"
+    geo_node_path: str = "/obj/geo_sequence_clips"
     server_port: int = 18861
 
 
