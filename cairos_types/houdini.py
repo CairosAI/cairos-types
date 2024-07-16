@@ -5,6 +5,8 @@ from pydantic.v1 import BaseModel, BaseSettings
 
 class ExportMotionsRequest(BaseModel):
     exposed_scene_path: Path
+    exposed_input_node_path: str
+    exposed_input_exec_parm_name: str
     exposed_output_node_path: str
     exposed_output_exec_parm_name: str
     exposed_job_id: str
@@ -17,6 +19,8 @@ class ExportMotionsRequest(BaseModel):
 
 
 class CairosHoudiniConfig(BaseSettings):
+    input_node_path: str = "/obj/geo_sequence_clips/input_json_to_pts"
+    input_exec_parm_name: str = "cookbutton"
     output_node_path: str = "/obj/ropnet/char-gltf"
     output_exec_parm_name: str = "execute"
     avatar_node_path: str = "/obj/geo_avatar_rest/file2"
@@ -44,6 +48,3 @@ class CairosHoudiniError(BaseModel):
 
     def exposed_dict(self, *args, **kwargs):
         return self.dict(*args, **kwargs)
-
-
-config = CairosHoudiniConfig()
