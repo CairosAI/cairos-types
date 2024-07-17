@@ -34,18 +34,6 @@ class CairosHoudiniSuccess(BaseModel):
     job_id: str
     gltf_path: Path
 
-    def json(self, *args, **kwargs):
-        return self.json(*args, **kwargs)
-
-    def dict(self, *args, **kwargs):
-        return self.dict(*args, **kwargs)
-
 
 class CairosHoudiniError(BaseModel):
     error_message: str
-
-    def json(self, *args, **kwargs):
-        return self.json(*args, **kwargs)
-
-    def dict(self, *args, **kwargs):
-        return self.dict(*args, **kwargs)
