@@ -4,18 +4,18 @@ from pydantic.v1 import BaseModel, BaseSettings
 
 
 class ExportMotionsRequest(BaseModel):
-    exposed_scene_path: Path
-    exposed_input_node_path: str
-    exposed_input_exec_parm_name: str
-    exposed_output_node_path: str
-    exposed_output_exec_parm_name: str
-    exposed_job_id: str
-    exposed_motions: List
-    exposed_output_path: Path
-    exposed_avatar: str | None
-    exposed_avatar_node_path: str
-    exposed_avatar_parm_name: str
-    exposed_geo_node_path: str
+    scene_path: Path
+    input_node_path: str
+    input_exec_parm_name: str
+    output_node_path: str
+    output_exec_parm_name: str
+    job_id: str
+    motions: List
+    output_path: Path
+    avatar: str | None
+    avatar_node_path: str
+    avatar_parm_name: str
+    geo_node_path: str
 
 
 class CairosHoudiniConfig(BaseSettings):
@@ -31,21 +31,21 @@ class CairosHoudiniConfig(BaseSettings):
 
 
 class CairosHoudiniSuccess(BaseModel):
-    exposed_job_id: str
-    exposed_gltf_path: Path
+    job_id: str
+    gltf_path: Path
 
-    def exposed_json(self, *args, **kwargs):
+    def json(self, *args, **kwargs):
         return self.json(*args, **kwargs)
 
-    def exposed_dict(self, *args, **kwargs):
+    def dict(self, *args, **kwargs):
         return self.dict(*args, **kwargs)
 
 
 class CairosHoudiniError(BaseModel):
-    exposed_error_message: str
+    error_message: str
 
-    def exposed_json(self, *args, **kwargs):
+    def json(self, *args, **kwargs):
         return self.json(*args, **kwargs)
 
-    def exposed_dict(self, *args, **kwargs):
+    def dict(self, *args, **kwargs):
         return self.dict(*args, **kwargs)
