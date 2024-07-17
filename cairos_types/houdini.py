@@ -27,6 +27,7 @@ class CairosHoudiniConfig(BaseSettings):
     avatar_parm_name: str = "file"
     geo_node_path: str = "/obj/geo_sequence_clips"
     server_port: int = 18861
+    server_host: str = "cairos-houdini-server"
 
 
 class CairosHoudiniSuccess(BaseModel):
