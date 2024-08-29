@@ -5,20 +5,16 @@ class Motion(BaseModel):
     action: str
     filepath: str
     tags: str | list[str]
-    cause: str
-    duration: float
 
     @root_validator
     def check_motion(cls, values):
         import os
 
+        action = values.get("action")
         filepath = values.get("filepath")
         tags = values.get("tags")
         if not os.path.isfile(filepath):
-            raise ValueError(f"Motion {tags} cannot be found at path {filepath}")
-        duration = values.get("duration")
-        if duration is None or duration <= 0:
-            raise ValueError("Duration is None or nonpositive value.")
+            raise ValueError(f"Motion {action} cannot be found at path {filepath}")
         return values
 
 
