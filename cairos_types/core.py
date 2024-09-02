@@ -5,7 +5,7 @@ class Motion(BaseModel):
     sg_id: int
     action: str
     filepath: str
-    tags: str | list[str]
+    tags: str
 
     @root_validator
     def check_motion(cls, values):
