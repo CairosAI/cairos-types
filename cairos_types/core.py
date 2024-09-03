@@ -18,10 +18,9 @@ class Motion(BaseModel):
         # probable case. Therefore we can use the sg_id to identify the motion
         # in the error messages
         if sg_id is None:
-            if not isinstance(sg_id, int):
-                raise ValueError(f'Motion with id {sg_id} should have an integer id.')
-        else:
             raise ValueError(f'Motion missing id.')
+        elif not isinstance(sg_id, int):
+            raise ValueError(f'Motion with id {sg_id} should have an integer id.')
 
         if action is None or len(action) == 0:
             raise ValueError(f'Motion with id {sg_id} has missing or empty name.')
