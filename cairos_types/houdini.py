@@ -32,7 +32,7 @@ class CairosHoudiniConfig(BaseSettings):
 
 
 class CairosHoudiniSuccess(BaseModel):
-    job_id: str
+    job_id: tuple[str, UUID]
     gltf_path: Path
 
 
