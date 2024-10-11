@@ -6,6 +6,8 @@ from uuid import UUID
 class ExportMotionsRequest(BaseModel):
     scene_path: Path
     input_top_node_path: str
+    data_input_node: str
+    user_def_data_key: str
     output_node_path: str
     output_exec_parm_name: str
     job_id: tuple[str, UUID]
