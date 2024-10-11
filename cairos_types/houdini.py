@@ -1,14 +1,14 @@
 from pathlib import Path
 from typing import List
 from pydantic.v1 import BaseModel, BaseSettings
-
+from uuid import UUID
 
 class ExportMotionsRequest(BaseModel):
     scene_path: Path
     input_top_node_path: str
     output_node_path: str
     output_exec_parm_name: str
-    job_id: str
+    job_id: tuple[str, UUID]
     motions: List
     output_path: Path
     avatar: str | None
