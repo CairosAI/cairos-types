@@ -18,6 +18,9 @@ class ExportMotionsRequest(BaseModel):
 
 class CairosHoudiniConfig(BaseSettings):
     input_top_node_path: str = "/obj/geo_sequence_clips/topnet1"
+    data_input_node: str = "/obj/geo_sequence_clips/input_data"
+    user_def_data_key: str = "motions"
+
     output_node_path: str = "/obj/ropnet/char-gltf"
     output_exec_parm_name: str = "execute"
     avatar_node_path: str = "/obj/geo_avatar_rest/file2"
