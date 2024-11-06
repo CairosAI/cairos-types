@@ -6,21 +6,25 @@ from uuid import UUID
 class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
     server_host: str = "cairos-houdini-server"
-
-class HoudiniError(BaseModel):
-    error_message: str
+    scene_path: Path
 
 class SequencerConfig(BaseHoudiniConfig):
     input_top_node_path: str = "/obj/geo_sequence_clips/topnet1"
     data_input_node: str = "/obj/geo_sequence_clips/input_data"
     user_def_data_key: str = "motions"
+
+    # Needed for setting the output file
     output_node_path: str = "/obj/ropnet/char-gltf"
     output_exec_parm_name: str = "execute"
+
+    # For loading the user's avatar
     avatar_node_path: str = "/obj/geo_avatar_rest/file2"
     avatar_parm_name: str = "file"
 
+class HoudiniError(BaseModel):
+    error_message: str
+
 class SequencerRequest(BaseModel):
-    scene_path: Path
     job_id: tuple[str, UUID]
     motions: List
     output_path: Path
@@ -37,7 +41,6 @@ class AvatarIngestConfig(BaseHoudiniConfig):
     render_top_node: str = "/obj/output"
 
 class AvatarIngestRequest(BaseModel):
-    scene_path: Path
     config: AvatarIngestConfig
 
 class AvatarIngestSuccess(BaseModel):
