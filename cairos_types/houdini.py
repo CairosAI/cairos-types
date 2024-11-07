@@ -6,7 +6,6 @@ from uuid import UUID
 class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
     server_host: str = "cairos-houdini-server"
-    scene_path: Path
 
 class SequencerConfig(BaseHoudiniConfig):
     input_top_node_path: str = "/obj/geo_sequence_clips/topnet1"
@@ -20,6 +19,8 @@ class SequencerConfig(BaseHoudiniConfig):
     # For loading the user's avatar
     avatar_node_path: str = "/obj/geo_avatar_rest/file2"
     avatar_parm_name: str = "file"
+
+    scene_path: Path
 
 class HoudiniError(BaseModel):
     error_message: str
@@ -39,6 +40,8 @@ class AvatarIngestConfig(BaseHoudiniConfig):
     data_input_node: str = "/obj/character/RPC_DATA_COMES_HERE"
     user_def_data_key: str = "io_paths"
     render_top_node: str = "/obj/output"
+
+    scene_path: Path
 
 class AvatarIngestRequest(BaseModel):
     config: AvatarIngestConfig
