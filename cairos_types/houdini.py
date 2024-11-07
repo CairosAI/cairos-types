@@ -42,6 +42,8 @@ class AvatarIngestConfig(BaseHoudiniConfig):
 
 class AvatarIngestRequest(BaseModel):
     config: AvatarIngestConfig
+    input_avatar_path: Path
+    output_avatar_path: Path
 
 class AvatarIngestSuccess(BaseModel):
     path: Path
