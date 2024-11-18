@@ -9,7 +9,9 @@ class Motion(BaseModel):
 
     @root_validator
     def check_motion(cls, values):
-        sg_id = values.get('sg_id')
+        sg_id = values.get('id')
+        values['sg_id'] = values['id']
+        del values['id']
         action = values.get('action')
         filepath = values.get('filepath')
         tags = values.get('tags')
