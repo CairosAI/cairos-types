@@ -1,17 +1,18 @@
-from pydantic.v1 import BaseModel, root_validator
+from pydantic.v1 import BaseModel, root_validator, Field
 import os
 
 class Motion(BaseModel):
-    sg_id: int
-    action: str
-    filepath: str
-    tags: str
+    class Config:
+        allow_population_by_field_name = True
+
+    sg_id: int = Field(..., alias='id')
+    action: str = Field(..., alias='description')
+    filepath: str = Field(..., alias='sg_file_animation')
+    tags: list
 
     @root_validator
     def check_motion(cls, values):
-        sg_id = values.get('id')
-        values['sg_id'] = values['id']
-        del values['id']
+        sg_id = values.get('sg_id')
         action = values.get('action')
         filepath = values.get('filepath')
         tags = values.get('tags')
