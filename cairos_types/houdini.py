@@ -39,7 +39,7 @@ class SequencerSuccess(BaseModel):
 class AvatarIngestConfig(BaseHoudiniConfig):
     data_input_node: str = "/obj/ingest/character/RPC_DATA_COMES_HERE"
     user_def_data_key: str = "io_paths"
-    render_top_node: str = "/obj/avatar/output"
+    render_top_node: str = "/obj/ingest/output"
 
     scene_path: Path
 
