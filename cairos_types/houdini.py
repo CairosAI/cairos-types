@@ -8,12 +8,12 @@ class BaseHoudiniConfig(BaseSettings):
     server_host: str = "cairos-houdini-server"
 
 class SequencerConfig(BaseHoudiniConfig):
-    input_top_node_path: str = "/obj/geo_sequence_clips/topnet1"
-    data_input_node: str = "/obj/geo_sequence_clips/input_data"
+    input_top_node_path: str = "/obj/sequencer/output"
+    data_input_node: str = "/obj/sequencer/sequencer/input_data"
     user_def_data_key: str = "motions"
 
     # Needed for setting the output file
-    output_node_path: str = "/obj/ropnet/char-gltf"
+    output_node_path: str = "/obj/sequencer/ropnet/char-gltf"
     output_exec_parm_name: str = "execute"
 
     # For loading the user's avatar
@@ -37,9 +37,9 @@ class SequencerSuccess(BaseModel):
     gltf_path: Path
 
 class AvatarIngestConfig(BaseHoudiniConfig):
-    data_input_node: str = "/obj/character/RPC_DATA_COMES_HERE"
+    data_input_node: str = "/obj/ingest/character/RPC_DATA_COMES_HERE"
     user_def_data_key: str = "io_paths"
-    render_top_node: str = "/obj/output"
+    render_top_node: str = "/obj/avatar/output"
 
     scene_path: Path
 
