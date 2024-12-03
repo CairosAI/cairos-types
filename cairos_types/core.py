@@ -1,14 +1,29 @@
-from pydantic.v1 import BaseModel, root_validator, Field
+from pydantic.v1 import BaseModel, root_validator, Field, validator
 import os
 
 class Motion(BaseModel):
     class Config:
         allow_population_by_field_name = True
 
-    sg_id: int = Field(..., alias='id')
-    action: str = Field(..., alias='description')
-    filepath: str = Field(..., alias='sg_file_animation')
+    sg_id: int = Field(...)
+    action: str = Field(...)
+    filepath: str = Field(...)
     tags: list
+
+    @root_validator(pre=True)
+    def map_from_sg(cls, values):
+        try:
+            if not 'sg_id' in values:
+                values.update({'sg_id': values.pop('id')})
+            if not 'action' in values:
+                values.update({'action': values.pop('description')})
+            if not 'filepath' in values:
+                values.update({'filepath': values.pop('sg_file_animation')})
+
+        except Exception as e:
+            raise e
+
+        return values
 
     @root_validator
     def check_motion(cls, values):
