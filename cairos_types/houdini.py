@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, get_args
 from pydantic.v1 import BaseModel, BaseSettings, root_validator, validator, Field
 from uuid import UUID
 
@@ -7,27 +7,36 @@ class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
     server_host: str = "cairos-houdini-server"
 
+class BaseHoudiniData(BaseModel):
+    def btl_list_fields(self):
+        return list(self.schema().get('properties').keys())
+
 class SequencerConfig(BaseHoudiniConfig):
     scene_path: Path
     # since we have a single hip file, that will be used for several operations
     # a node graph prefix is handy
     prefix: str = "/obj/sequencer"
-    data_input_node: str = f"{prefix}/sequencer/RPC_DATA_COMES_HERE"
-    user_def_data_key: str = "cairos_data"
+    data_input_node: str = f"{prefix}/sequencer/input_data"
     render_top_node: str = f"{prefix}/output"
 
 class SequencerAvatarData(BaseModel):
-    filepath: str
-    output: str
+    filepath: Path
+    output_bgeo: Path
+    output_gltf: Path
 
-class SequencerData(BaseModel):
+    @validator('filepath')
+    def check_avatar_filepath_exists(cls, v):
+        if not v.is_file():
+            raise ValueError(f'Avatar for sequencing job does not exist at {v}')
+
+class SequencerDataWrapper(BaseHoudiniData):
     avatar: SequencerAvatarData
-    motions: list
+    animations: list
 
 class SequencerRequest(BaseModel):
     job_id: tuple[str, UUID]
     config: SequencerConfig
-    data: SequencerData
+    data: SequencerDataWrapper
 
 class SequencerSuccess(BaseModel):
     request: SequencerRequest
@@ -64,42 +73,56 @@ class AvatarIngestConfig(BaseHoudiniConfig):
     scene_path: Path
     prefix: str = "/obj/ingest"
     data_input_node: str = f"{prefix}/character/RPC_DATA_COMES_HERE"
-    user_def_data_key: str = "cairos_data"
     render_top_node: str = f"{prefix}/output"
 
 AvatarMapping: TypeAlias = Literal['mixamo'] # more to come in the near future
 
 class AvatarIngestData(BaseModel):
-    input_path: str
-    output_path: str # directory
-    mapping: AvatarMapping
-    mapping_path: Path
+    input_path: Path
+    output_path: Path # directory, ensured in validator
+    mapping: Path
 
-    # @validator('mapping_path', pre=True)
-    # def generate_mapping_path(cls, v)
     @root_validator(pre=True)
     def generate_mapping_path(cls, values):
         try:
-            values.update(
-                {'mapping_path': Path(
+            m = values['mapping']
+            # `get_args` is a hack to get generic parameters of type, types with
+            # generic parameters cannot be used in `isinstance()` and `issubclass()`
+            if m in get_args(AvatarMapping):
+                values['mapping'] = Path(
                     '/mothership3/projects/crs/global/mapping',
-                    values['mapping'] + '.csv')
-                })
+                    m + '.csv')
+            elif not isinstance(m, Path):
+                values['mapping'] = Path(m)
         except KeyError:
             raise ValueError('A name for joint mapping table must be provided.')
         return values
 
-    @validator('mapping_path')
-    def check_mapping_file_exists(cls, v):
-        if not v.is_file():
-            raise ValueError(f'Joint mapping table file does not exist at {v}')
-        return v
+    @root_validator
+    def check_files_exist(cls, values):
+        if not values['input_path'].is_file():
+            raise ValueError(f'Input file does not exist at {values["input_path"]}')
+        if not values['output_path'].is_dir():
+            raise ValueError(f'Output path should be a directory, received {values["output_path"]}')
+        if not values['mapping'].is_file(): # TODO add check if the prefix of
+                                            # the path is indeed
+                                            # '/mothership3/projects/crs/global/mapping'
+            raise ValueError(f'Joint mapping table file does not exist at {values["mapping"]}')
+        return values
+
+    # overriding init to correctly hint acceptable types for mapping and play
+    # nice with the LSP
+    def __init__(self, input_path: Path, output_path: Path, mapping: AvatarMapping | Path):
+        d = locals()
+        d.pop('self')
+        super().__init__(**d)
+
+class AvatarIngestDataWrapper(BaseHoudiniData):
+    avatar: AvatarIngestData # TODO THIS IS NOT THE CORRECT ATTRIBUTE NAME, AS
 
 class AvatarIngestRequest(BaseModel):
     config: AvatarIngestConfig
-    data: AvatarIngestData
-    # input_avatar_path: Path
-    # output_avatar_path: Path
+    data: AvatarIngestDataWrapper
 
 class AvatarIngestSuccess(BaseModel):
     request: AvatarIngestRequest
@@ -129,4 +152,3 @@ class AvatarIngestSuccess(BaseModel):
 
 class HoudiniError(BaseModel):
     error_message: str
-
