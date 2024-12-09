@@ -136,7 +136,7 @@ class AvatarIngestData(BaseModel):
         super().__init__(**d)
 
 class AvatarIngestDataWrapper(BaseHoudiniData):
-    file_paths: AvatarIngestData # TODO THIS IS NOT THE CORRECT ATTRIBUTE NAME, AS
+    ingest: AvatarIngestData
 
 class AvatarIngestRequest(BaseModel):
     config: AvatarIngestConfig
