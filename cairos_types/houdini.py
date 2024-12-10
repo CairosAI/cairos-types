@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Literal, TypeAlias, get_args
 from pydantic.v1 import BaseModel, BaseSettings, root_validator, validator, Field
 from uuid import UUID
+from cairos_types.core import Motion
 
 class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
@@ -28,11 +29,55 @@ class SequencerAvatarData(BaseModel):
     def check_avatar_filepath_exists(cls, v):
         if not v.is_file():
             raise ValueError(f'Avatar for sequencing job does not exist at {v}')
+        # TODO check suffix here as well
         return v
+
+    @validator('output_bgeo')
+    def check_bgeo_suffix(cls, v):
+        if not v.suffix == '.bgeo':
+            raise ValueError(f'output_bgeo field should be a path to a file with `.bgeo` extension.')
+    @validator('output_gltf')
+    def check_gltf_suffix(cls, v):
+        if not v.suffix == '.gltf':
+            raise ValueError(f'output_gltf field should be a path to a file with `.gltf` extension.')
+
 
 class SequencerDataWrapper(BaseHoudiniData):
     avatar: SequencerAvatarData
-    animations: dict[str, list | str | int | float]
+    animations: dict[str, list[str | int | float]]
+
+    @root_validator(pre=True)
+    def convert_animations_to_hou_format(cls, values):
+        # Houdini does not support list[dict] currently (even though the
+        # documentation states otherwise). Since we usually contain motions in a
+        # list[Motion] here we will reshape it to a dict of lists. The dict
+        # follows the shape of a Motion, but each key has a list of values (for
+        # each motion respectively).
+
+        reshaped = {}
+        motions: list[Motion] = values['animations']
+        for m in motions:
+            as_dict = m.dict()
+            for key, value in as_dict.items():
+                if isinstance(value, list):
+                    if isinstance(value[0], str):
+                        value = ';'.join(value)
+                    else:
+                        raise ValueError('Motion attributes of type list can only have string elements.')
+                if key in reshaped:
+                    reshaped[key].append(value)
+                else:
+                    reshaped[key] = [value]
+
+        values['animations'] = reshaped
+        return values
+
+    def __init__(self,
+                 avatar: SequencerAvatarData,
+                 animations: list[Motion]):
+        d = locals()
+        d.pop('self')
+        super().__init__(**d)
 
 
 class SequencerRequest(BaseModel):
