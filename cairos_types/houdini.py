@@ -34,13 +34,12 @@ class SequencerAvatarData(BaseModel):
 
     @validator('output_bgeo')
     def check_bgeo_suffix(cls, v):
-        if not v.suffix == '.bgeo':
+        if not v.suffix == '.bgeo': # probably more suffixes will be possible
             raise ValueError(f'output_bgeo field should be a path to a file with `.bgeo` extension.')
     @validator('output_gltf')
     def check_gltf_suffix(cls, v):
-        if not v.suffix == '.gltf':
-            raise ValueError(f'output_gltf field should be a path to a file with `.gltf` extension.')
-
+        if not v.suffix == '.glb': # probably more suffixes will be possible
+            raise ValueError(f'output_gltf field should be a path to a file with `.glb` extension.')
 
 class SequencerDataWrapper(BaseHoudiniData):
     avatar: SequencerAvatarData
@@ -79,42 +78,32 @@ class SequencerDataWrapper(BaseHoudiniData):
         d.pop('self')
         super().__init__(**d)
 
-
 class SequencerRequest(BaseModel):
     job_id: tuple[str, UUID]
     config: SequencerConfig
     data: SequencerDataWrapper
 
 class SequencerSuccess(BaseModel):
-    request: SequencerRequest
+    job_id: tuple[str, UUID]
+    output_bgeo: Path
+    output_gltf: Path
 
-    bgeo: Path
-    gltf: Path
-
-
-    # @root_validator(pre=True)
-    # def interp_paths(cls, values):
-    #     try:
-    #         values.update({'fbx': Path(values['request'].data.avatar.output, 'output.fbx'),
-    #                        'gltf': Path(values['request'].data.avatar.output,
-    #                                     'output-gltf-char.glb')
-    #                        })
-    #     except Exception as e:
-    #         raise e
-    #     return values
-
-    # Finally we check if they are existing files on mothership3. The type
-    # annotations have `| None` so that LSP does not require passing them when
-    # instantiating the object.
     @root_validator
     def check_paths_exist(cls, values):
-        if not values['bgeo'].is_file():
-            raise ValueError(f'Path to BGEO file does not exist at {values["bgeo"]}')
+        if not values['output_bgeo'].is_file():
+            raise ValueError(f'Path to BGEO file does not exist at {values["output_bgeo"]}')
 
-        if not values['gltf'].is_file():
-            raise ValueError(f'Path to glTF file does not exist at {values["gltf"]}')
+        if not values['output_gltf'].is_file():
+            raise ValueError(f'Path to glTF file does not exist at {values["output_gltf"]}')
 
         return values
+
+    def __init__(self, request: SequencerRequest):
+        kwargs = {}
+        kwargs.update({'job_id': request.job_id,
+                       'output_bgeo': request.data.avatar.output_bgeo,
+                       'output_gltf': request.data.avatar.output_gltf})
+        super().__init__(**kwargs)
 
 class AvatarIngestConfig(BaseHoudiniConfig):
     scene_path: Path
@@ -153,14 +142,14 @@ class AvatarIngestData(BaseModel):
         if not values['input_avatar'].is_file():
             raise ValueError(f'Input file does not exist at {values["input_avatar"]}')
 
-        if not values['input_mapping'].is_file(): # TODO add check if the prefix of
-                                            # the path is indeed
-                                            # '/mothership3/projects/crs/global/mapping'
+        if not values['input_mapping'].is_file(): # TODO add check if the prefix
+                                                  # of the path is indeed
+                                                  # '/mothership3/projects/crs/global/mapping'
             raise ValueError(f'Joint mapping table file does not exist at {values["input_mapping"]}')
         if not values['output_bgeo'].suffix == '.bgeo':
             raise ValueError(f'output_bgeo field should be a path to a file with `.bgeo` extension.')
-        if not values['output_gltf'].suffix == '.gltf':
-            raise ValueError(f'output_gltf field should be a path to a file with `.gltf` extension.')
+        if not values['output_gltf'].suffix == '.glb':
+            raise ValueError(f'output_gltf field should be a path to a file with `.glb` extension.')
         if not values['output_thumbnail'].suffix == '.png':
             raise ValueError(f'output_thumbnail field should be a path to a file with `.png` extension.')
         if not values['output_skelref'].suffix == '.png':
@@ -188,30 +177,34 @@ class AvatarIngestRequest(BaseModel):
     data: AvatarIngestDataWrapper
 
 class AvatarIngestSuccess(BaseModel):
-    request: AvatarIngestRequest
-    gltf: Path | None
-    thumbnail: Path | None
-
-    @root_validator(pre=True)
-    def interp_paths(cls, values):
-        try:
-            values.update({'gltf': Path(values['request'].data.output_path,
-                                        'ingest.glb'),
-                           'thumbnail': Path(values['request'].data.output_path, 'thumbnail.png')
-                           })
-        except Exception as e:
-            raise e
-        return values
+    output_bgeo: Path
+    output_gltf: Path
+    output_thumbnail: Path
+    output_skelref: Path
 
     @root_validator
     def check_paths_exist(cls, values):
-        if not values['thumbnail'].is_file():
-            raise ValueError(f'Path to avatar thumbnail does not exist at {values["thumbnail"]}')
+        if not values['output_bgeo'].is_file():
+            raise ValueError(f'Path to bgeo file does not exist at {values["output_bgeo"]}')
 
-        if not values['gltf'].is_file():
-            raise ValueError(f'Path to glTF file does not exist at {values["gltf"]}')
+        if not values['output_gltf'].is_file():
+            raise ValueError(f'Path to glTF file does not exist at {values["output_gltf"]}')
+
+        if not values['output_thumbnail'].is_file():
+            raise ValueError(f'Path to avatar thumbnail does not exist at {values["output_thumbnail"]}')
+        if not values['output_skelref'].is_file():
+            raise ValueError(f'Path to avatar skelref does not exist at {values["output_skelref"]}')
 
         return values
+
+    def __init__(self,
+                 request: AvatarIngestRequest):
+        kwargs = {}
+        kwargs.update({'output_bgeo': request.data.ingest.output_bgeo,
+                       'output_gltf': request.data.ingest.output_gltf,
+                       'output_thumbnail': request.data.ingest.output_thumbnail,
+                       'output_skelref': request.data.ingest.output_skelref})
+        super().__init__(**kwargs)
 
 class HoudiniError(BaseModel):
     error_message: str
