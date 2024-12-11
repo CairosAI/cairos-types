@@ -5,10 +5,10 @@ class Motion(BaseModel):
     class Config:
         allow_population_by_field_name = True
 
-    sg_id: int = Field(...)
+    sg_id: int = Field(..., alias='id')
     # TODO remove later. This alias is temporary, while we still have no descriptions
     action: str = Field(..., alias='description')
-    filepath: str = Field(...)
+    filepath: str = Field(..., alias='sg_file_animation')
     tags: list
 
     @root_validator(pre=True)
