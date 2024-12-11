@@ -6,7 +6,8 @@ class Motion(BaseModel):
         allow_population_by_field_name = True
 
     sg_id: int = Field(...)
-    action: str = Field(...)
+    # TODO remove later. This alias is temporary, while we still have no descriptions
+    action: str = Field(..., alias='description')
     filepath: str = Field(...)
     tags: list
 
