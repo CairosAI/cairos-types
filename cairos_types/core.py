@@ -7,7 +7,7 @@ class Motion(BaseModel):
 
     sg_id: int = Field(..., alias='id')
     # TODO remove later. This alias is temporary, while we still have no descriptions
-    action: str = Field(..., alias='description')
+    action: str = Field(..., alias='sg_mocap_desc_emotion')
     filepath: str = Field(..., alias='sg_file_animation')
     tags: list
 
@@ -17,7 +17,7 @@ class Motion(BaseModel):
             if not 'sg_id' in values:
                 values.update({'sg_id': values.pop('id')})
             if not 'action' in values:
-                values.update({'action': values.pop('description')})
+                values.update({'action': values.pop('sg_mocap_desc_emotion')})
             if not 'filepath' in values:
                 values.update({'filepath': values.pop('sg_file_animation')})
 
