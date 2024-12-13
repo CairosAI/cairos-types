@@ -7,8 +7,8 @@ class Motion(BaseModel):
 
     sg_id: int = Field(..., alias='id')
     # TODO remove later. This alias is temporary, while we still have no descriptions
-    action: str = Field(..., alias='sg_mocap_desc_emotion')
-    filepath: str = Field(..., alias='sg_file_animation')
+    description: str = Field(..., alias='sg_mocap_desc_emotion')
+    input: str = Field(..., alias='sg_file_animation')
     tags: list
 
     @root_validator(pre=True)
@@ -16,10 +16,10 @@ class Motion(BaseModel):
         try:
             if not 'sg_id' in values:
                 values.update({'sg_id': values.pop('id')})
-            if not 'action' in values:
-                values.update({'action': values.pop('sg_mocap_desc_emotion')})
-            if not 'filepath' in values:
-                values.update({'filepath': values.pop('sg_file_animation')})
+            if not 'description' in values:
+                values.update({'description': values.pop('sg_mocap_desc_emotion')})
+            if not 'input' in values:
+                values.update({'input': values.pop('sg_file_animation')})
 
         except Exception as e:
             raise e
@@ -29,8 +29,8 @@ class Motion(BaseModel):
     @root_validator
     def check_motion(cls, values):
         sg_id = values.get('sg_id')
-        action = values.get('action')
-        filepath = values.get('filepath')
+        description = values.get('description')
+        inputfile = values.get('input')
         tags = values.get('tags')
 
         # since a ShotGrid version always has an ID this is probably the least
@@ -41,11 +41,11 @@ class Motion(BaseModel):
         elif not isinstance(sg_id, int):
             raise ValueError(f'Motion with id {sg_id} should have an integer id.')
 
-        if action is None or len(action) == 0:
+        if description is None or len(description) == 0:
             raise ValueError(f'Motion with id {sg_id} has missing or empty name.')
 
-        if not os.path.isfile(filepath):
-            raise ValueError(f'Motion with id {sg_id} cannot be found at path {filepath}')
+        if not os.path.isfile(inputfile):
+            raise ValueError(f'Motion with id {sg_id} cannot be found at path {inputfile}')
 
         return values
 
@@ -59,8 +59,8 @@ class Animation(BaseModel):
     description: str
 
 class MockMotion(BaseModel):
-    action: str
     description: str
+    input: str
 
 class MockMotions(BaseModel):
     motions: list[MockMotion]
