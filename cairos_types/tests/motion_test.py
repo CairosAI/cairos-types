@@ -9,12 +9,12 @@ def existing_file() -> Path:
 @pytest.fixture(scope='module')
 def nonexistent_file() -> Path:
     return Path('/this_path_does/not/exist')
-    
+
 def test_motion_creation_field_names(existing_file: Path):
     m = Motion(
         sg_id=1,
-        action='Running',
-        filepath=str(existing_file),
+        description='Running',
+        input=str(existing_file),
         tags=[]
     )
 
@@ -55,6 +55,6 @@ def test_motion_missing_file(nonexistent_file: Path):
     with pytest.raises(ValueError):
         m = Motion(
             sg_id=1,
-            action='Running',
-            filepath=str(nonexistent_file),
+            description='Running',
+            input=str(nonexistent_file),
             tags=[])
