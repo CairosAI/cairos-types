@@ -58,11 +58,15 @@ class SequencerDataWrapper(BaseHoudiniData):
         for m in motions:
             as_dict = m.dict()
             for key, value in as_dict.items():
-                if isinstance(value, list) and len(value) > 0:
-                    if isinstance(value[0], str):
-                        value = ';'.join(value)
+                if isinstance(value, list):
+                    if len(value) > 0:
+                        if isinstance(value[0], str):
+                            value = ';'.join(value)
+                        else:
+                            raise ValueError('Motion attributes of type list can only have string elements.')
                     else:
-                        raise ValueError('Motion attributes of type list can only have string elements.')
+                        value = ''
+
                 if key in reshaped:
                     reshaped[key].append(value)
                 else:
