@@ -58,7 +58,7 @@ class SequencerDataWrapper(BaseHoudiniData):
         for m in motions:
             as_dict = m.dict()
             for key, value in as_dict.items():
-                if isinstance(value, list):
+                if isinstance(value, list) and len(value) > 0:
                     if isinstance(value[0], str):
                         value = ';'.join(value)
                     else:
