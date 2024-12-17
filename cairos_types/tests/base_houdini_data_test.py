@@ -52,12 +52,12 @@ def sequencer_avatar_data(temp_paths: list[Path]) -> SequencerAvatarData:
 def mock_motions_list(temp_paths_motions: list[str]) -> list:
     return [
         Motion(
-            id=123,
+            sg_id=123,
             description='running',
             input=temp_paths_motions[0],
             tags=['a', 'b', 'c']),
         Motion(
-            id=345,
+            sg_id=345,
             description='jumping',
             input=temp_paths_motions[1],
             tags=['d', 'e', 'f'])]
