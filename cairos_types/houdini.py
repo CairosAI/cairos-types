@@ -204,14 +204,5 @@ class AvatarIngestSuccess(BaseModel):
 
         return values
 
-    def __init__(self,
-                 request: AvatarIngestRequest):
-        kwargs = {}
-        kwargs.update({'output_bgeo': request.data.ingest.output_bgeo,
-                       'output_gltf': request.data.ingest.output_gltf,
-                       'output_thumbnail': request.data.ingest.output_thumbnail,
-                       'output_skelref': request.data.ingest.output_skelref})
-        super().__init__(**kwargs)
-
 class HoudiniError(BaseModel):
     error_message: str
