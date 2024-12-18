@@ -102,13 +102,6 @@ class SequencerSuccess(BaseModel):
 
         return values
 
-    def __init__(self, request: SequencerRequest):
-        kwargs = {}
-        kwargs.update({'job_id': request.job_id,
-                       'output_bgeo': request.data.avatar.output_bgeo,
-                       'output_gltf': request.data.avatar.output_gltf})
-        super().__init__(**kwargs)
-
 class AvatarIngestConfig(BaseHoudiniConfig):
     scene_path: Path
     prefix: str = "/obj/ingest"
