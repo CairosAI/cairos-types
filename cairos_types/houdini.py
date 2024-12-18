@@ -194,10 +194,13 @@ class AvatarIngestSuccess(BaseModel):
         if not values['output_gltf'].is_file():
             raise ValueError(f'Path to glTF file does not exist at {values["output_gltf"]}')
 
-        if not values['output_thumbnail'].is_file():
-            raise ValueError(f'Path to avatar thumbnail does not exist at {values["output_thumbnail"]}')
-        if not values['output_skelref'].is_file():
-            raise ValueError(f'Path to avatar skelref does not exist at {values["output_skelref"]}')
+        # These are commented out temporarily, while we figure out how to
+        # prevent OpenGL ROP from crashing hython
+
+        # if not values['output_thumbnail'].is_file():
+        #     raise ValueError(f'Path to avatar thumbnail does not exist at {values["output_thumbnail"]}')
+        # if not values['output_skelref'].is_file():
+        #     raise ValueError(f'Path to avatar skelref does not exist at {values["output_skelref"]}')
 
         return values
 
