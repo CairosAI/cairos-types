@@ -7,28 +7,24 @@ from pathlib import Path
 from cairos_types.houdini import SequencerAvatarData, SequencerDataWrapper
 
 @pytest.fixture(scope='module')
-def existing_path() -> Path:
-    return Path(Path(__file__).parent.parent.parent, 'pyproject.toml')
-
-@pytest.fixture(scope='module')
 def temp_paths() -> Generator[list[Path], Any, Any]:
-    with tempfile.NamedTemporaryFile(suffix=".bgeo") as bgeo, tempfile.NamedTemporaryFile(suffix=".glb") as glb:
-        yield [Path(bgeo.name), Path(glb.name)]
+    with tempfile.NamedTemporaryFile(suffix=".bgeo") as avatar, tempfile.NamedTemporaryFile(suffix=".bgeo.sc") as bgeo, tempfile.NamedTemporaryFile(suffix=".glb") as glb:
+        yield [Path(avatar.name), Path(bgeo.name), Path(glb.name)]
 
 
 @pytest.fixture(scope='module')
-def motions(existing_path: Path) -> list[Motion]:
+def motions(temp_paths: list[Path]) -> list[Motion]:
 
     data = [
         {
             "description": "Sneaky Look Around take 02",
-            "input": str(existing_path),
+            "input": str(temp_paths[0]),
             "tags": ["Sneaky", "Look", "Around", "take", "02"],
             "sg_id": 1
         },
         {
             "description": "Sneaky Look Around take 06",
-            "input": str(existing_path),
+            "input": str(temp_paths[1]),
             "tags": ["Sneaky", "Look", "Around", "take", "06"],
             "sg_id": 1
         }
@@ -38,18 +34,18 @@ def motions(existing_path: Path) -> list[Motion]:
     return motions
 
 @pytest.fixture(scope='module')
-def avatar_data(existing_path: Path, temp_paths: list[Path]) -> SequencerAvatarData:
+def avatar_data(temp_paths: list[Path]) -> SequencerAvatarData:
     return SequencerAvatarData(
-        input=existing_path,
-        output_bgeo=Path(temp_paths[0]),
-        output_gltf=Path(temp_paths[1]))
+        input=temp_paths[0],
+        output_bgeo=temp_paths[1],
+        output_gltf=temp_paths[2])
 
 def test_sequencer_data(motions: list[Motion],
                         avatar_data: SequencerAvatarData):
     data = SequencerDataWrapper(
         avatar=avatar_data,
-        animations=motions)
+        animations=motions).convert_animations_to_hou_format()
 
-    assert isinstance(data.animations, dict)
-    for key, value in data.animations.items():
+    assert isinstance(data["animations"], dict)
+    for key, value in data["animations"].items():
         assert isinstance(value, list)
