@@ -1,4 +1,5 @@
 import pytest
+import json
 from pathlib import Path
 from typing import Generator, Any
 import tempfile
@@ -20,21 +21,20 @@ from cairos_types.houdini import SequencerAvatarData, SequencerDataWrapper, Base
 # example `SequencerData`
 
 # prerequisites:
-@pytest.fixture(scope='module')
-def existing_file() -> Path:
-    return Path(Path(__file__).parent.parent.parent , 'pyproject.toml')
 
 @pytest.fixture(scope='module')
 def temp_paths() -> Generator[list[Path], Any, Any]:
     with tempfile.NamedTemporaryFile(suffix=".bgeo") as avatar,\
-         tempfile.NamedTemporaryFile(suffix=".bgeo") as bgeo, \
+         tempfile.NamedTemporaryFile(suffix=".bgeo.sc") as bgeo, \
          tempfile.NamedTemporaryFile(suffix=".glb") as glb:
         yield [Path(avatar.name), Path(bgeo.name), Path(glb.name)]
 
 @pytest.fixture(scope='module')
-def temp_paths_motions() -> Generator[list[str], Any, Any]:
-    with tempfile.NamedTemporaryFile(suffix=".bgeo.sc") as bgeo, tempfile.NamedTemporaryFile(suffix=".bgeo.sc") as glb:
-        yield [bgeo.name, glb.name]
+def temp_paths_motions() -> Generator[list[Path], Any, Any]:
+    with tempfile.NamedTemporaryFile(suffix=".bgeo") as avatar, \
+         tempfile.NamedTemporaryFile(suffix=".bgeo") as bgeo, \
+         tempfile.NamedTemporaryFile(suffix=".bgeo") as glb:
+        yield [Path(avatar.name), Path(bgeo.name), Path(glb.name)]
 
 
 @pytest.fixture(scope='module')
@@ -49,17 +49,17 @@ def sequencer_avatar_data(temp_paths: list[Path]) -> SequencerAvatarData:
     )
 
 @pytest.fixture(scope='module')
-def mock_motions_list(temp_paths_motions: list[str]) -> list:
+def mock_motions_list(temp_paths_motions: list[Path]) -> list:
     return [
         Motion(
             sg_id=123,
             description='running',
-            input=temp_paths_motions[0],
+            input=str(temp_paths_motions[0]),
             tags=['a', 'b', 'c']),
         Motion(
             sg_id=345,
             description='jumping',
-            input=temp_paths_motions[1],
+            input=str(temp_paths_motions[1]),
             tags=['d', 'e', 'f'])]
 
 # SequencerData
@@ -76,19 +76,9 @@ def test_base_houdini_data_conversion(sequencer_data: SequencerDataWrapper,
 
     # Make sure that `sequencerData` is indeed a subclass of `BaseHoudiniData`
     assert issubclass(type(sequencer_data), BaseHoudiniData)
+    sequencer_dict_data = sequencer_data.convert_animations_to_hou_format()
 
-    # get the names of its fields
-    fields = sequencer_data.btl_list_fields()
-
-    # here we check that the values in the field match with the ones we set, but
-    # in a real use case we would just set a detai attribute on some
-    # `hou.Geometry` with name `name` and value `attr_value.dict()` or
-    # `attr_value.json()` (remember, `attr_value` is supposed to be a Pydantic
-    # model)
-
-    for name in fields:
-        attr_value = getattr(sequencer_data, name)
-        if name == 'avatar':
-            assert attr_value == sequencer_avatar_data
-        if name == 'animations':
-            assert set(attr_value) <= set(mock_motions_list[0].dict().keys())
+    assert sequencer_dict_data["avatar"] == \
+        json.loads(sequencer_avatar_data.json())
+    assert set(sequencer_dict_data["animations"].keys()) == \
+        set(json.loads(mock_motions_list[0].json()).keys())
