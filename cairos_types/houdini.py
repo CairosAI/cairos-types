@@ -22,18 +22,8 @@ class SequencerConfig(BaseHoudiniConfig):
     render_top_node: str = f"{prefix}/output"
 
 class SequencerAvatarData(BaseModel):
-    input: Path
     output_bgeo: Path
     output_gltf: Path
-
-    @validator('input')
-    def check_avatar_filepath_exists(cls, v: Path):
-        if not v.is_file():
-            raise ValueError(f'Avatar for sequencing job does not exist at {v}')
-        if not v.suffix == '.bgeo':
-            raise ValueError(f'Avatar used for sequencing should be a ".bgeo" file.')
-
-        return v
 
     @validator('output_bgeo')
     def check_bgeo_suffix(cls, v: Path):
