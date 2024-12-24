@@ -39,7 +39,7 @@ class SequencerAvatarData(BaseModel):
         return v
 
 class SequencerDataWrapper(BaseHoudiniData):
-    avatar: SequencerAvatarData
+    avatar: SequencerAvatarData | None
     animations: list[Motion]
 
     def convert_animations_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
