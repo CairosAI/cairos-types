@@ -112,7 +112,9 @@ class AvatarIngestConfig(BaseHoudiniConfig):
     data_input_node: str = f"{prefix}/character/RPC_DATA_COMES_HERE"
     render_top_node: str = f"{prefix}/output"
 
-AvatarMapping: TypeAlias = Literal['mixamo'] # more to come in the near future
+AvatarPreset: TypeAlias = Literal['mixamo']
+AvatarMapping: TypeAlias = AvatarPreset | Path | bytes # more to come in the near future
+
 
 class AvatarIngestData(BaseModel):
     input_avatar: Path
