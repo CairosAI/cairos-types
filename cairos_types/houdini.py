@@ -106,6 +106,42 @@ class SequencerSuccess(BaseModel):
 
         return values
 
+class ExportConfig(BaseModel):
+    scene_path: Path
+    # since we have a single hip file, that will be used for several operations
+    # a node graph prefix is handy
+    prefix: str = "/obj/export"
+    data_input_node: str = f"{prefix}/sequencer/RPC_DATA_COMES_HERE"
+    render_top_node: str = f"{prefix}/output"
+
+
+class ExportData(BaseModel):
+    sequencer_product: Path
+    output_path: Path
+
+class ExportDataWrapper(BaseModel):
+    input_data: ExportData
+
+    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
+        # TODO
+        self_as_dict = json.loads(self.json())
+        return self_as_dict
+
+class ExportSuccess(BaseModel):
+    output_path: Path
+
+    @root_validator
+    def check_paths_exist(cls, values):
+        if not values['output_path'].is_file():
+            raise ValueError(f'Output path does not exist at {values["output_path"]}')
+
+        return values
+
+class ExportRequest(BaseModel):
+    job_id: tuple[str, UUID]
+    config: ExportConfig
+    data: ExportDataWrapper
+
 class AvatarIngestConfig(BaseHoudiniConfig):
     scene_path: Path
     prefix: str = "/obj/ingest"
