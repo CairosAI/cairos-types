@@ -111,8 +111,8 @@ class ExportConfig(BaseModel):
     # since we have a single hip file, that will be used for several operations
     # a node graph prefix is handy
     prefix: str = "/obj/export"
-    data_input_node: str = f"{prefix}/sequencer/RPC_DATA_COMES_HERE"
-    render_top_node: str = f"{prefix}/output"
+    data_input_node: str = f"{prefix}/export/RPC_DATA_COMES_HERE"
+    render_top_node: str = f"{prefix}/topnet1"
 
 
 class ExportData(BaseModel):
@@ -142,6 +142,8 @@ class ExportRequest(BaseModel):
     config: ExportConfig
     data: ExportDataWrapper
 
+ExportType: TypeAlias = Literal['.glb']
+
 class AvatarIngestConfig(BaseHoudiniConfig):
     scene_path: Path
     prefix: str = "/obj/ingest"
@@ -166,7 +168,7 @@ class AvatarIngestData(BaseModel):
             m = values['input_mapping']
             # `get_args` is a hack to get generic parameters of type, types with
             # generic parameters cannot be used in `isinstance()` and `issubclass()`
-            if m in get_args(AvatarMapping):
+            if m in get_args(AvatarPreset):
                 values['input_mapping'] = Path(
                     '/mothership3/projects/crs/global/mapping',
                     m + '.csv')

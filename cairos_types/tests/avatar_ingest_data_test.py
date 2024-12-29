@@ -1,4 +1,4 @@
-from cairos_types.houdini import AvatarIngestData, AvatarIngestDataWrapper
+from cairos_types.houdini import AvatarIngestData
 import tempfile
 from typing import Generator, Any
 import pytest
