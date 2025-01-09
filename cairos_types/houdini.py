@@ -128,6 +128,7 @@ class ExportDataWrapper(BaseModel):
         return self_as_dict
 
 class ExportSuccess(BaseModel):
+    job_id: tuple[str, UUID]
     output_path: Path
 
     @root_validator
@@ -155,6 +156,7 @@ AvatarMapping: TypeAlias = AvatarPreset | Path | bytes # more to come in the nea
 
 
 class AvatarIngestData(BaseModel):
+    avatar_id: UUID
     input_avatar: Path
     input_mapping: Path
     output_bgeo: Path
@@ -200,6 +202,7 @@ class AvatarIngestData(BaseModel):
     # overriding init to correctly hint acceptable types for mapping and play
     # nice with the LSP
     def __init__(self,
+                 avatar_id: UUID,
                  input_avatar: Path,
                  input_mapping: AvatarMapping | Path,
                  output_bgeo: Path,
@@ -218,6 +221,7 @@ class AvatarIngestRequest(BaseModel):
     data: AvatarIngestDataWrapper
 
 class AvatarIngestSuccess(BaseModel):
+    avatar_id: UUID
     output_bgeo: Path
     output_gltf: Path
     output_thumbnail: Path
