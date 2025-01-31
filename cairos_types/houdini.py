@@ -143,7 +143,7 @@ class ExportRequest(BaseModel):
     config: ExportConfig
     data: ExportDataWrapper
 
-ExportType: TypeAlias = Literal['.glb']
+ExportType: TypeAlias = Literal['.glb', '.fbx']
 
 class AvatarIngestConfig(BaseHoudiniConfig):
     scene_path: Path
