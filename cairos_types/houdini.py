@@ -8,6 +8,7 @@ import json
 class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
     server_host: str = "cairos-houdini-server"
+    debug_scene_directory: Path | None = None
 
 class BaseHoudiniData(BaseModel):
     def btl_list_fields(self):
@@ -106,7 +107,7 @@ class SequencerSuccess(BaseModel):
 
         return values
 
-class ExportConfig(BaseModel):
+class ExportConfig(BaseHoudiniConfig):
     scene_path: Path
     # since we have a single hip file, that will be used for several operations
     # a node graph prefix is handy
