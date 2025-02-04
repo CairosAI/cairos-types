@@ -9,6 +9,12 @@ class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
     server_host: str = "cairos-houdini-server"
     debug_scene_directory: Path | None = None
+    logs_host: str = "loki"
+    logs_port: int = 3100
+
+    @property
+    def logs_address(self) -> str:
+        return f'http://{self.logs_host}:{self.logs_port}/loki/api/v1/push'
 
 class BaseHoudiniData(BaseModel):
     def btl_list_fields(self):
