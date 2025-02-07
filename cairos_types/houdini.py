@@ -252,5 +252,58 @@ class AvatarIngestSuccess(BaseModel):
 
         return values
 
+class AvatarAutorigData(BaseModel):
+    avatar_id: UUID
+    input_avatar: Path
+    output_bgeo: Path
+    output_gltf: Path
+
+    @root_validator
+    def check_files_exist(cls, values):
+        if not values['input_avatar'].is_file():
+            raise ValueError(f'Input file does not exist at {values["input_avatar"]}')
+
+        if not values['output_bgeo'].suffix == '.bgeo':
+            raise ValueError(f'output_bgeo field should be a path to a file with `.bgeo` extension.')
+        if not values['output_gltf'].suffix == '.glb':
+            raise ValueError(f'output_gltf field should be a path to a file with `.glb` extension.')
+
+        return values
+
+class AvatarAutorigConfig(BaseHoudiniConfig):
+    scene_path: Path
+    prefix: str = "/obj/autorig"
+    data_input_node: str = f"{prefix}/character/RPC_DATA_COMES_HERE"
+    render_top_node: str = f"{prefix}/output"
+
+class AvatarAutorigDataWrapper(BaseHoudiniData):
+    ingest: AvatarAutorigData
+
+    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
+        # TODO
+        self_as_dict = json.loads(self.json())
+        return self_as_dict
+
+class AvatarAutorigRequest(BaseModel):
+    avatar_id: UUID
+    config: AvatarAutorigConfig
+    data: AvatarAutorigDataWrapper
+
+class AvatarAutorigSuccess(BaseModel):
+    avatar_id: UUID
+    output_bgeo: Path
+    output_gltf: Path
+
+    @root_validator
+    def check_paths_exist(cls, values):
+        if not values['output_bgeo'].is_file():
+            raise ValueError(f'Path to bgeo file does not exist at {values["output_bgeo"]}')
+
+        if not values['output_gltf'].is_file():
+            raise ValueError(f'Path to glTF file does not exist at {values["output_gltf"]}')
+
+        return values
+
+
 class HoudiniError(BaseModel):
     error_message: str
