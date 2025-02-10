@@ -152,9 +152,9 @@ class ExportRequest(BaseModel):
 
 ExportType: TypeAlias = Literal['.glb', '.fbx']
 
-class AvatarIngestConfig(BaseHoudiniConfig):
+class AvatarUploadConfig(BaseHoudiniConfig):
     scene_path: Path
-    prefix: str = "/obj/ingest"
+    prefix: str = "/obj/upload"
     data_input_node: str = f"{prefix}/character/RPC_DATA_COMES_HERE"
     render_top_node: str = f"{prefix}/output"
 
@@ -162,40 +162,18 @@ AvatarPreset: TypeAlias = Literal['mixamo']
 AvatarMapping: TypeAlias = AvatarPreset | Path | bytes # more to come in the near future
 
 
-class AvatarIngestData(BaseModel):
+class AvatarUploadData(BaseModel):
     avatar_id: UUID
     input_avatar: Path
-    input_mapping: Path
     output_bgeo: Path
     output_gltf: Path
     output_thumbnail: Path
     output_skelref: Path
 
-    @root_validator(pre=True)
-    def generate_mapping_path(cls, values):
-        try:
-            m = values['input_mapping']
-            # `get_args` is a hack to get generic parameters of type, types with
-            # generic parameters cannot be used in `isinstance()` and `issubclass()`
-            if m in get_args(AvatarPreset):
-                values['input_mapping'] = Path(
-                    '/mothership3/projects/crs/global/mapping',
-                    m + '.csv')
-            elif not isinstance(m, Path):
-                values['input_mapping'] = Path(m)
-        except KeyError:
-            raise ValueError('A name for joint mapping table must be provided.')
-        return values
-
     @root_validator
     def check_files_exist(cls, values):
         if not values['input_avatar'].is_file():
             raise ValueError(f'Input file does not exist at {values["input_avatar"]}')
-
-        if not values['input_mapping'].is_file(): # TODO add check if the prefix
-                                                  # of the path is indeed
-                                                  # '/mothership3/projects/crs/global/mapping'
-            raise ValueError(f'Joint mapping table file does not exist at {values["input_mapping"]}')
         if not values['output_bgeo'].suffix == '.bgeo':
             raise ValueError(f'output_bgeo field should be a path to a file with `.bgeo` extension.')
         if not values['output_gltf'].suffix == '.glb':
@@ -211,7 +189,6 @@ class AvatarIngestData(BaseModel):
     def __init__(self,
                  avatar_id: UUID,
                  input_avatar: Path,
-                 input_mapping: AvatarMapping | Path,
                  output_bgeo: Path,
                  output_gltf: Path,
                  output_thumbnail: Path,
@@ -220,14 +197,14 @@ class AvatarIngestData(BaseModel):
         d.pop('self')
         super().__init__(**d)
 
-class AvatarIngestDataWrapper(BaseHoudiniData):
-    ingest: AvatarIngestData
+class AvatarUploadDataWrapper(BaseHoudiniData):
+    ingest: AvatarUploadData
 
-class AvatarIngestRequest(BaseModel):
-    config: AvatarIngestConfig
-    data: AvatarIngestDataWrapper
+class AvatarUploadRequest(BaseModel):
+    config: AvatarUploadConfig
+    data: AvatarUploadDataWrapper
 
-class AvatarIngestSuccess(BaseModel):
+class AvatarUploadSuccess(BaseModel):
     avatar_id: UUID
     output_bgeo: Path
     output_gltf: Path
