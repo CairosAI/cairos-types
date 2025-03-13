@@ -54,13 +54,11 @@ def mock_motions_list(temp_paths_motions: list[Path]) -> list:
         Motion(
             sg_id=123,
             description='running',
-            input=str(temp_paths_motions[0]),
-            tags=['a', 'b', 'c']),
+            input=str(temp_paths_motions[0])),
         Motion(
             sg_id=345,
             description='jumping',
-            input=str(temp_paths_motions[1]),
-            tags=['d', 'e', 'f'])]
+            input=str(temp_paths_motions[1]))]
 
 # SequencerData
 @pytest.fixture(scope='module')

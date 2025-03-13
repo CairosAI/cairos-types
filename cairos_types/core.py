@@ -1,22 +1,20 @@
-from pydantic.v1 import BaseModel, root_validator, Field, validator
+from pydantic.v1 import BaseModel, root_validator
 import os
 
 class Motion(BaseModel):
     sg_id: int
     description: str
-    input: str
-    tags: list
+    input: str # filepath of the motion
 
     @root_validator
     def check_motion(cls, values):
         sg_id = values.get('sg_id')
         description = values.get('description')
         inputfile = values.get('input')
-        tags = values.get('tags')
 
-        # since a ShotGrid version always has an ID this is probably the least
-        # probable case. Therefore we can use the sg_id to identify the motion
-        # in the error messages
+        # since a ShotGrid version always has an ID this is the least probable
+        # case. Therefore we can use the sg_id to identify the motion in the
+        # error messages
         if sg_id is None:
             raise ValueError(f'Motion missing id.')
         elif not isinstance(sg_id, int):

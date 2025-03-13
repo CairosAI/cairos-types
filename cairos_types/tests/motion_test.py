@@ -14,17 +14,13 @@ def test_motion_creation_field_names(existing_file: Path):
     m = Motion(
         sg_id=1,
         description='Running',
-        input=str(existing_file),
-        tags=[]
-    )
+        input=str(existing_file))
 
     assert isinstance(m, Motion)
-
 
 def test_motion_missing_file(nonexistent_file: Path):
     with pytest.raises(ValueError):
         _ = Motion(
             sg_id=1,
             description='Running',
-            input=str(nonexistent_file),
-            tags=[])
+            input=str(nonexistent_file))
