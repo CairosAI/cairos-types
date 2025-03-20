@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Literal, TypeAlias, get_args
-from pydantic.v1 import BaseModel, BaseSettings, root_validator, validator
+from pydantic.v1 import BaseModel, BaseSettings, root_validator, validator, ConfigDict, Extra
 from uuid import UUID
 from cairos_types.core import Motion
 import json
@@ -19,6 +19,21 @@ class BaseHoudiniConfig(BaseSettings):
 class BaseHoudiniData(BaseModel):
     def btl_list_fields(self):
         return list(self.schema().get('properties').keys())
+
+class MsgQueueConfig(BaseSettings, extra=Extra.ignore):
+    model_config = ConfigDict(extra=Extra.ignore)
+
+    broker_name: str = "cairos"
+    msg_queue_name_to: str = "cairos.houdini_request"
+    msg_queue_name_from: str = "cairos.houdini_response"
+    msg_queue_username: str
+    msg_queue_password: str
+    request_timeout: int = 60
+    request_retry_interval: int = 2
+    backend: str = "rpc://"
+    @property
+    def broker_url(self) -> str:
+        return f"amqp://{self.msg_queue_username}:{self.msg_queue_password}@rabbitmq:5672//"
 
 class SequencerConfig(BaseHoudiniConfig):
     scene_path: Path
