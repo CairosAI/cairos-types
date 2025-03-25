@@ -28,7 +28,7 @@ class MsgQueueConfig(BaseSettings, extra=Extra.ignore):
     msg_queue_name_from: str = "cairos.houdini_response"
     msg_queue_username: str
     msg_queue_password: str
-    request_timeout: int = 60
+    request_timeout: int = 240
     request_retry_interval: int = 2
     backend: str = "rpc://"
     @property
