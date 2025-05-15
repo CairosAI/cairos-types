@@ -140,6 +140,7 @@ class ExportConfig(BaseHoudiniConfig):
 class ExportData(BaseModel):
     sequencer_product: Path
     output_path: Path
+    output_zip: Path
 
 class ExportDataWrapper(BaseModel):
     input_data: ExportData
@@ -152,11 +153,14 @@ class ExportDataWrapper(BaseModel):
 class ExportSuccess(BaseModel):
     job_id: tuple[str, UUID]
     output_path: Path
+    output_zip: Path
 
     @root_validator
     def check_paths_exist(cls, values):
-        if not values['output_path'].is_file():
+        if not values['output_path'].is_dir():
             raise ValueError(f'Output path does not exist at {values["output_path"]}')
+        if not values['output_zip'].is_file():
+            raise ValueError(f'Output zip does not exist at {values["output_path"]}')
 
         return values
 
@@ -165,7 +169,7 @@ class ExportRequest(BaseModel):
     config: ExportConfig
     data: ExportDataWrapper
 
-ExportType: TypeAlias = Literal['.glb', '.fbx']
+ExportType: TypeAlias = Literal['.glb', '.fbx', '.zip']
 
 class AvatarUploadConfig(BaseHoudiniConfig):
     scene_path: Path
