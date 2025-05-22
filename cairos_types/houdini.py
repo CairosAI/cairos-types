@@ -160,7 +160,7 @@ class ExportSuccess(BaseModel):
         if not values['output_path'].is_dir():
             raise ValueError(f'Output path does not exist at {values["output_path"]}')
         if not values['output_zip'].is_file():
-            raise ValueError(f'Output zip does not exist at {values["output_path"]}')
+            raise ValueError(f'Output zip does not exist at {values["output_zip"]}')
 
         return values
 
