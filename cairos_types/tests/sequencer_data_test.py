@@ -20,13 +20,17 @@ def motions(temp_paths: list[Path]) -> list[Motion]:
             "description": "Sneaky Look Around take 02",
             "input": str(temp_paths[0]),
             "tags": ["Sneaky", "Look", "Around", "take", "02"],
-            "sg_id": 1
+            "sg_id": 1,
+            "shot_description": "Sneaking session",
+            "created_at": "2025-06-09T00:00:00"
         },
         {
             "description": "Sneaky Look Around take 06",
             "input": str(temp_paths[1]),
             "tags": ["Sneaky", "Look", "Around", "take", "06"],
-            "sg_id": 1
+            "sg_id": 1,
+            "shot_description": "Sneaking session",
+            "created_at": "2025-06-09T00:00:00"
         }
     ]
 

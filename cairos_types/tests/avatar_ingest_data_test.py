@@ -1,8 +1,9 @@
-from cairos_types.houdini import AvatarIngestData
+from cairos_types.houdini import AvatarUploadData
 import tempfile
 from typing import Generator, Any
 import pytest
 from pathlib import Path
+from uuid import uuid4, UUID
 
 @pytest.fixture(scope='module')
 def existing_file() -> Path:
@@ -29,25 +30,21 @@ def temp_paths() -> Generator[list[Path], Any, Any]:
 
 def test_avatar_ingest_data_creation(temp_paths: list[Path],
                                      existing_dir: Path):
-    obj = AvatarIngestData(
+    obj = AvatarUploadData(
+        avatar_id=uuid4(),
         input_avatar=temp_paths[0],
         output_bgeo=temp_paths[1],
         output_gltf=temp_paths[2],
         output_thumbnail=temp_paths[3],
-        output_skelref=temp_paths[4],
-        input_mapping='mixamo') # LSP does not complain, even
-                          # completion works
+        output_skelref=temp_paths[4])
 
-    assert isinstance(obj.input_mapping, Path)
     assert obj.input_avatar == temp_paths[0]
     assert obj.output_bgeo == temp_paths[1]
 
-    obj2 = AvatarIngestData(
+    obj2 = AvatarUploadData(
+        avatar_id=uuid4(),
         input_avatar=temp_paths[0],
         output_bgeo=temp_paths[1],
         output_gltf=temp_paths[2],
         output_thumbnail=temp_paths[3],
-        output_skelref=temp_paths[4],
-        input_mapping=temp_paths[5]) # with path too
-
-    assert obj2.input_mapping == temp_paths[5]
+        output_skelref=temp_paths[4])

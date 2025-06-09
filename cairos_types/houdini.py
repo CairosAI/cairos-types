@@ -128,6 +128,82 @@ class SequencerSuccess(BaseModel):
 
         return values
 
+class RetargetConfig(BaseHoudiniConfig):
+    scene_path: Path
+    prefix: str = "/obj/retarget"
+    data_input_node: str = f"{prefix}/retarget/RPC_DATA_COMES_HERE"
+    render_top_node: str = f"{prefix}/topnet1"
+
+class RetargetSuccess(BaseModel):
+    job_id: tuple[str, UUID]
+    output_bgeo: Path
+    output_gltf: Path
+
+    @root_validator
+    def check_paths_exist(cls, values):
+        if not values["output_bgeo"].is_file():
+            raise ValueError(f'Path to BGEO file does not exist at {values["output_bgeo"]}')
+
+        if not values['output_gltf'].is_file():
+            raise ValueError(f'Path to glTF file does not exist at {values["output_gltf"]}')
+
+        return values
+
+class RetargetInput(BaseModel):
+    sequencer_bgeo: Path
+
+    @validator('sequencer_bgeo')
+    def check_sequencer_bgeo_exists(cls, v: Path):
+        if not v.is_file():
+            raise ValueError(f"Sequencer bgeo does not exist {v}")
+
+        return v
+
+class RetargetAvatarData(BaseModel):
+    input: Path
+
+    @validator('input')
+    def check_avatar_filepath_exists(cls, v: Path):
+        if not v.is_file():
+            raise ValueError(f'Avatar for sequencing job does not exist at {v}')
+        if not v.suffix == '.bgeo':
+            raise ValueError(f'Avatar used for sequencing should be a ".bgeo" file.')
+
+        return v
+
+class RetargetOutput(BaseModel):
+    output_bgeo: Path
+    output_gltf: Path
+
+    @validator('output_bgeo')
+    def check_bgeo_suffix(cls, v: Path):
+        suffixes = v.suffixes
+        if len(suffixes) != 2 or suffixes[0] != '.bgeo' or suffixes[1] != '.sc':
+            raise ValueError(f'output_bgeo field should be a path to a file with `.bgeo.sc` extension.')
+        return v
+
+    @validator('output_gltf')
+    def check_gltf_suffix(cls, v):
+        if not v.suffix == '.glb': # probably more suffixes will be possible
+            raise ValueError(f'output_gltf field should be a path to a file with `.glb` extension.')
+        return v
+
+
+class RetargetDataWrapper(BaseModel):
+    avatar: RetargetAvatarData
+    input: RetargetInput
+    output: RetargetOutput
+
+    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
+        self_as_dict = json.loads(self.json())
+
+        return self_as_dict
+
+class RetargetRequest(BaseModel):
+    job_id: tuple[str, UUID]
+    config: RetargetConfig
+    data: RetargetDataWrapper
+
 class ExportConfig(BaseHoudiniConfig):
     scene_path: Path
     # since we have a single hip file, that will be used for several operations

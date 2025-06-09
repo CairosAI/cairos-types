@@ -1,3 +1,4 @@
+import datetime
 from pathlib import Path
 from cairos_types.core import Motion
 import pytest
@@ -14,7 +15,9 @@ def test_motion_creation_field_names(existing_file: Path):
     m = Motion(
         sg_id=1,
         description='Running',
-        input=str(existing_file))
+        input=str(existing_file),
+        shot_description="This is a test shot",
+        created_at=datetime.datetime.now())
 
     assert isinstance(m, Motion)
 
@@ -23,4 +26,6 @@ def test_motion_missing_file(nonexistent_file: Path):
         _ = Motion(
             sg_id=1,
             description='Running',
-            input=str(nonexistent_file))
+            input=str(nonexistent_file),
+            shot_description="This is a test shot",
+            created_at=datetime.datetime.now())

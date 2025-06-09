@@ -1,3 +1,4 @@
+import datetime
 import pytest
 import json
 from pathlib import Path
@@ -54,11 +55,15 @@ def mock_motions_list(temp_paths_motions: list[Path]) -> list:
         Motion(
             sg_id=123,
             description='running',
-            input=str(temp_paths_motions[0])),
+            input=str(temp_paths_motions[0]),
+            shot_description="Running test",
+            created_at=datetime.datetime.now()),
         Motion(
             sg_id=345,
             description='jumping',
-            input=str(temp_paths_motions[1]))]
+            input=str(temp_paths_motions[1]),
+            shot_description="Jumping test",
+            created_at=datetime.datetime.now())]
 
 # SequencerData
 @pytest.fixture(scope='module')
