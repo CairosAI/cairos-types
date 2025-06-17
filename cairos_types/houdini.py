@@ -28,12 +28,13 @@ class MsgQueueConfig(BaseSettings, extra=Extra.ignore):
     msg_queue_name_from: str = "cairos.houdini_response"
     msg_queue_username: str
     msg_queue_password: str
+    msg_queue_host: str = "rabbitmq"
     request_timeout: int = 240
     request_retry_interval: int = 2
     backend: str = "rpc://"
     @property
     def broker_url(self) -> str:
-        return f"amqp://{self.msg_queue_username}:{self.msg_queue_password}@rabbitmq:5672//"
+        return f"amqp://{self.msg_queue_username}:{self.msg_queue_password}@{self.msg_queue_host}:5672//"
 
 class SequencerConfig(BaseHoudiniConfig):
     scene_path: Path
