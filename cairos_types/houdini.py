@@ -44,36 +44,14 @@ class SequencerConfig(BaseHoudiniConfig):
     data_input_node: str = f"{prefix}/sequencer/RPC_DATA_COMES_HERE"
     render_top_node: str = f"{prefix}/output"
 
-class SequencerAvatarData(BaseModel):
-    input: Path
+class SequencerOutput(BaseHoudiniData):
     output_bgeo: Path
     output_gltf: Path
 
-    @validator('input')
-    def check_avatar_filepath_exists(cls, v: Path):
-        if not v.is_file():
-            raise ValueError(f'Avatar for sequencing job does not exist at {v}')
-        if not v.suffix == '.bgeo':
-            raise ValueError(f'Avatar used for sequencing should be a ".bgeo" file.')
-
-        return v
-
-    @validator('output_bgeo')
-    def check_bgeo_suffix(cls, v: Path):
-        suffixes = v.suffixes
-        if len(suffixes) != 2 or suffixes[0] != '.bgeo' or suffixes[1] != '.sc':
-            raise ValueError(f'output_bgeo field should be a path to a file with `.bgeo.sc` extension.')
-        return v
-
-    @validator('output_gltf')
-    def check_gltf_suffix(cls, v):
-        if not v.suffix == '.glb': # probably more suffixes will be possible
-            raise ValueError(f'output_gltf field should be a path to a file with `.glb` extension.')
-        return v
 
 class SequencerDataWrapper(BaseHoudiniData):
-    avatar: SequencerAvatarData
     animations: list[Motion]
+    output: SequencerOutput
 
     def convert_animations_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
         self_as_dict = json.loads(self.json())
