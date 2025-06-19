@@ -51,7 +51,7 @@ class SequencerOutput(BaseHoudiniData):
 
 class SequencerDataWrapper(BaseHoudiniData):
     animations: list[Motion]
-    avatar: SequencerOutput
+    output: SequencerOutput
 
     def convert_animations_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
         self_as_dict = json.loads(self.json())
