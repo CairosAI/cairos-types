@@ -111,7 +111,7 @@ class RetargetConfig(BaseHoudiniConfig):
     scene_path: Path
     prefix: str = "/obj/retarget"
     data_input_node: str = f"{prefix}/retarget/RPC_DATA_COMES_HERE"
-    render_top_node: str = f"{prefix}/topnet1"
+    render_top_node: str = f"{prefix}/output"
 
 class RetargetSuccess(BaseModel):
     job_id: tuple[str, UUID]
