@@ -6,7 +6,7 @@ from typing import Generator, Any
 import tempfile
 
 from cairos_types.core import Motion
-from cairos_types.houdini import SequencerAvatarData, SequencerDataWrapper, BaseHoudiniData
+from cairos_types.houdini import SequencerOutput, SequencerDataWrapper, BaseHoudiniData
 
 # This file explains the reasoning for `BaseHoudiniData` and showcases how it
 # should be used. This class should be subclassed by other classes, which define
@@ -39,8 +39,8 @@ def temp_paths_motions() -> Generator[list[Path], Any, Any]:
 
 
 @pytest.fixture(scope='module')
-def sequencer_avatar_data(temp_paths: list[Path]) -> SequencerAvatarData:
-    return SequencerAvatarData(
+def sequencer_output_data(temp_paths: list[Path]) -> SequencerOutput:
+    return SequencerOutput(
         input=temp_paths[0],
         output_bgeo=temp_paths[1], # random paths, they do not matter now, and
                                     # are not validated at this stage, they are
@@ -67,21 +67,21 @@ def mock_motions_list(temp_paths_motions: list[Path]) -> list:
 
 # SequencerData
 @pytest.fixture(scope='module')
-def sequencer_data(sequencer_avatar_data: SequencerAvatarData,
+def sequencer_data(sequencer_output_data: SequencerOutput,
                    mock_motions_list: list) -> SequencerDataWrapper:
     return SequencerDataWrapper(
-        avatar=sequencer_avatar_data,
+        output=sequencer_output_data,
         animations=mock_motions_list)
 
 def test_base_houdini_data_conversion(sequencer_data: SequencerDataWrapper,
-                                      sequencer_avatar_data: SequencerAvatarData,
+                                      sequencer_output_data: SequencerOutput,
                                       mock_motions_list: list):
 
     # Make sure that `sequencerData` is indeed a subclass of `BaseHoudiniData`
     assert issubclass(type(sequencer_data), BaseHoudiniData)
     sequencer_dict_data = sequencer_data.convert_animations_to_hou_format()
 
-    assert sequencer_dict_data["avatar"] == \
-        json.loads(sequencer_avatar_data.json())
+    assert sequencer_dict_data["output"] == \
+        json.loads(sequencer_output_data.json())
     assert set(sequencer_dict_data["animations"].keys()) == \
         set(json.loads(mock_motions_list[0].json()).keys())

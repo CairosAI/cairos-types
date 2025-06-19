@@ -130,6 +130,7 @@ class RetargetSuccess(BaseModel):
 
 class RetargetInput(BaseModel):
     sequencer_bgeo: Path
+    avatar_bgeo: Path
 
     @validator('sequencer_bgeo')
     def check_sequencer_bgeo_exists(cls, v: Path):
@@ -138,15 +139,10 @@ class RetargetInput(BaseModel):
 
         return v
 
-class RetargetAvatarData(BaseModel):
-    input: Path
-
-    @validator('input')
-    def check_avatar_filepath_exists(cls, v: Path):
+    @validator('avatar_bgeo')
+    def check_avatar_bgeo_exists(cls, v: Path):
         if not v.is_file():
-            raise ValueError(f'Avatar for sequencing job does not exist at {v}')
-        if not v.suffix == '.bgeo':
-            raise ValueError(f'Avatar used for sequencing should be a ".bgeo" file.')
+            raise ValueError(f"Avatar bgeo does not exist {v}")
 
         return v
 
@@ -169,7 +165,6 @@ class RetargetOutput(BaseModel):
 
 
 class RetargetDataWrapper(BaseModel):
-    avatar: RetargetAvatarData
     input: RetargetInput
     output: RetargetOutput
 

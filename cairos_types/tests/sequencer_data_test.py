@@ -4,7 +4,7 @@ from typing import Generator, Any
 from cairos_types.core import Motion, Motions
 from pathlib import Path
 
-from cairos_types.houdini import SequencerAvatarData, SequencerDataWrapper
+from cairos_types.houdini import SequencerDataWrapper, SequencerOutput
 
 @pytest.fixture(scope='module')
 def temp_paths() -> Generator[list[Path], Any, Any]:
@@ -38,16 +38,15 @@ def motions(temp_paths: list[Path]) -> list[Motion]:
     return motions
 
 @pytest.fixture(scope='module')
-def avatar_data(temp_paths: list[Path]) -> SequencerAvatarData:
-    return SequencerAvatarData(
-        input=temp_paths[0],
+def output_data(temp_paths: list[Path]) -> SequencerOutput:
+    return SequencerOutput(
         output_bgeo=temp_paths[1],
         output_gltf=temp_paths[2])
 
 def test_sequencer_data(motions: list[Motion],
-                        avatar_data: SequencerAvatarData):
+                        output_data: SequencerOutput):
     data = SequencerDataWrapper(
-        avatar=avatar_data,
+        output=output_data,
         animations=motions).convert_animations_to_hou_format()
 
     assert isinstance(data["animations"], dict)
