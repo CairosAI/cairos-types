@@ -36,6 +36,15 @@ class MsgQueueConfig(BaseSettings, extra=Extra.ignore):
     def broker_url(self) -> str:
         return f"amqp://{self.msg_queue_username}:{self.msg_queue_password}@{self.msg_queue_host}:5672//"
 
+class Context(BaseSettings):
+    username: str
+    action: str | None = None
+    thread: str | None = None
+    message: str | None = None
+    scene: str | None = None
+    animation: str | None = None
+    avatar: str | None = None
+
 class SequencerConfig(BaseHoudiniConfig):
     scene_path: Path
     # since we have a single hip file, that will be used for several operations
@@ -90,6 +99,7 @@ class SequencerDataWrapper(BaseHoudiniData):
 class SequencerRequest(BaseModel):
     job_id: tuple[str, UUID]
     config: SequencerConfig
+    context: Context
     data: SequencerDataWrapper
 
 class SequencerSuccess(BaseModel):
@@ -176,6 +186,7 @@ class RetargetDataWrapper(BaseModel):
 class RetargetRequest(BaseModel):
     job_id: tuple[str, UUID]
     config: RetargetConfig
+    context: Context
     data: RetargetDataWrapper
 
 class ExportConfig(BaseHoudiniConfig):
@@ -217,6 +228,7 @@ class ExportSuccess(BaseModel):
 class ExportRequest(BaseModel):
     job_id: tuple[str, UUID]
     config: ExportConfig
+    context: Context
     data: ExportDataWrapper
 
 ExportType: TypeAlias = Literal['.glb', '.fbx', '.zip']
@@ -271,6 +283,7 @@ class AvatarUploadDataWrapper(BaseHoudiniData):
 
 class AvatarUploadRequest(BaseModel):
     config: AvatarUploadConfig
+    context: Context
     data: AvatarUploadDataWrapper
 
 class AvatarUploadSuccess(BaseModel):
@@ -333,6 +346,7 @@ class AvatarAutorigDataWrapper(BaseHoudiniData):
 class AvatarAutorigRequest(BaseModel):
     avatar_id: UUID
     config: AvatarAutorigConfig
+    context: Context
     data: AvatarAutorigDataWrapper
 
 class AvatarAutorigSuccess(BaseModel):
