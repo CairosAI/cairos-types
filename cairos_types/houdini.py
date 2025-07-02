@@ -293,6 +293,7 @@ class AvatarUploadData(BaseModel):
     output_gltf: Path
     output_thumbnail: Path
     output_skelref: Path
+    output_joint_paths: Path
 
     @root_validator
     def check_files_exist(cls, values):
@@ -306,6 +307,8 @@ class AvatarUploadData(BaseModel):
             raise ValueError(f'output_thumbnail field should be a path to a file with `.png` extension.')
         if not values['output_skelref'].suffix == '.png':
             raise ValueError(f'output_skelref field should be a path to a file with `.png` extension.')
+        if not values['output_joint_paths'].suffix == '.csv':
+            raise ValueError(f'output_joint_paths field should be a path to a file with `.csv` extension.')
         return values
 
     # overriding init to correctly hint acceptable types for mapping and play
@@ -316,7 +319,8 @@ class AvatarUploadData(BaseModel):
                  output_bgeo: Path,
                  output_gltf: Path,
                  output_thumbnail: Path,
-                 output_skelref: Path):
+                 output_skelref: Path,
+                 output_joint_paths: Path):
         d = locals()
         d.pop('self')
         super().__init__(**d)
@@ -335,14 +339,18 @@ class AvatarUploadSuccess(BaseModel):
     output_gltf: Path
     output_thumbnail: Path
     output_skelref: Path
+    output_joint_paths: Path
 
     @root_validator
     def check_paths_exist(cls, values):
         if not values['output_bgeo'].is_file():
-            raise ValueError(f'Path to bgeo file does not exist at {values["output_bgeo"]}')
+            raise ValueError(f'No bgeo file found at path {values["output_bgeo"]}')
 
         if not values['output_gltf'].is_file():
-            raise ValueError(f'Path to glTF file does not exist at {values["output_gltf"]}')
+            raise ValueError(f'No glTF file found at path {values["output_gltf"]}')
+
+        if not values['output_joint_paths'].is_file():
+            raise ValueError(f'No csv file found at path {values["output_joint_paths"]}')
 
         # These are commented out temporarily, while we figure out how to
         # prevent OpenGL ROP from crashing hython

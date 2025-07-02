@@ -20,13 +20,13 @@ def temp_paths() -> Generator[list[Path], Any, Any]:
          tempfile.NamedTemporaryFile(suffix=".glb") as glb, \
          tempfile.NamedTemporaryFile(suffix=".png") as png, \
          tempfile.NamedTemporaryFile(suffix=".png") as skel, \
-         tempfile.NamedTemporaryFile(suffix=".csv") as mapping:
+         tempfile.NamedTemporaryFile(suffix=".csv") as joint_paths:
         yield [Path(avatar.name),
                Path(bgeo.name),
                Path(glb.name),
                Path(png.name),
                Path(skel.name),
-               Path(mapping.name)]
+               Path(joint_paths.name)]
 
 def test_avatar_ingest_data_creation(temp_paths: list[Path],
                                      existing_dir: Path):
@@ -36,7 +36,8 @@ def test_avatar_ingest_data_creation(temp_paths: list[Path],
         output_bgeo=temp_paths[1],
         output_gltf=temp_paths[2],
         output_thumbnail=temp_paths[3],
-        output_skelref=temp_paths[4])
+        output_skelref=temp_paths[4],
+        output_joint_paths=temp_paths[5])
 
     assert obj.input_avatar == temp_paths[0]
     assert obj.output_bgeo == temp_paths[1]
@@ -47,4 +48,5 @@ def test_avatar_ingest_data_creation(temp_paths: list[Path],
         output_bgeo=temp_paths[1],
         output_gltf=temp_paths[2],
         output_thumbnail=temp_paths[3],
-        output_skelref=temp_paths[4])
+        output_skelref=temp_paths[4],
+        output_joint_paths=temp_paths[5])
