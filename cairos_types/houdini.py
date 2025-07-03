@@ -238,7 +238,7 @@ class AvatarExportConfig(BaseHoudiniConfig):
     scene_path: Path
     # since we have a single hip file, that will be used for several operations
     # a node graph prefix is handy
-    prefix: str = "/obj/avatar_export"
+    prefix: str = "/obj/export_avatar"
     data_input_node: str = f"{prefix}/export/RPC_DATA_COMES_HERE"
     render_top_node: str = f"{prefix}/topnet1"
 
