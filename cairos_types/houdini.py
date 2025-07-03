@@ -233,6 +233,49 @@ class ExportRequest(BaseModel):
 
 ExportType: TypeAlias = Literal['.glb', '.fbx', '.zip']
 
+
+class AvatarExportConfig(BaseHoudiniConfig):
+    scene_path: Path
+    # since we have a single hip file, that will be used for several operations
+    # a node graph prefix is handy
+    prefix: str = "/obj/avatar_export"
+    data_input_node: str = f"{prefix}/export/RPC_DATA_COMES_HERE"
+    render_top_node: str = f"{prefix}/topnet1"
+
+
+class AvatarExportData(BaseModel):
+    avatar_path: Path
+    output_path: Path
+    output_zip: Path
+
+class AvatarExportDataWrapper(BaseModel):
+    input_data: AvatarExportData
+
+    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
+        # TODO
+        self_as_dict = json.loads(self.json())
+        return self_as_dict
+
+class AvatarExportSuccess(BaseModel):
+    avatar_id: UUID
+    output_path: Path
+    output_zip: Path
+
+    @root_validator
+    def check_paths_exist(cls, values):
+        if not values['output_path'].is_dir():
+            raise ValueError(f'Output path does not exist at {values["output_path"]}')
+        if not values['output_zip'].is_file():
+            raise ValueError(f'Output zip does not exist at {values["output_zip"]}')
+
+        return values
+
+class AvatarExportRequest(BaseModel):
+    avatar_id: UUID
+    config: AvatarExportConfig
+    context: Context
+    data: AvatarExportDataWrapper
+
 class AvatarUploadConfig(BaseHoudiniConfig):
     scene_path: Path
     prefix: str = "/obj/upload"
