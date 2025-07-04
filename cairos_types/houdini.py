@@ -337,7 +337,7 @@ class AvatarUploadSuccess(BaseModel):
     output_gltf: Path
     output_thumbnail: Path
     output_skelref: Path
-    output_joint_paths: Path
+    output_joint_paths: Path | None
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -346,9 +346,6 @@ class AvatarUploadSuccess(BaseModel):
 
         if not values['output_gltf'].is_file():
             raise ValueError(f'No glTF file found at path {values["output_gltf"]}')
-
-        if not values['output_joint_paths'].is_file():
-            raise ValueError(f'No csv file found at path {values["output_joint_paths"]}')
 
         # These are commented out temporarily, while we figure out how to
         # prevent OpenGL ROP from crashing hython
