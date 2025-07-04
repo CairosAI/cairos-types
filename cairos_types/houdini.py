@@ -307,8 +307,6 @@ class AvatarUploadData(BaseModel):
             raise ValueError(f'output_thumbnail field should be a path to a file with `.png` extension.')
         if not values['output_skelref'].suffix == '.png':
             raise ValueError(f'output_skelref field should be a path to a file with `.png` extension.')
-        if not values['output_joint_paths'].suffix == '.csv':
-            raise ValueError(f'output_joint_paths field should be a path to a file with `.csv` extension.')
         return values
 
     # overriding init to correctly hint acceptable types for mapping and play
@@ -320,7 +318,7 @@ class AvatarUploadData(BaseModel):
                  output_gltf: Path,
                  output_thumbnail: Path,
                  output_skelref: Path,
-                 output_joint_paths: Path):
+                 output_joint_paths: Path | None = None):
         d = locals()
         d.pop('self')
         super().__init__(**d)
