@@ -7,6 +7,8 @@ import json
 
 from cairos_types.skeleton import CairosWorkSkelMapping
 
+HoudiniNodeErrors: TypeAlias = dict[str, str] | None
+
 class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
     server_host: str = "cairos-houdini-server"
@@ -108,6 +110,7 @@ class SequencerSuccess(BaseModel):
     job_id: tuple[str, UUID]
     output_bgeo: Path
     output_gltf: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -129,6 +132,7 @@ class RetargetSuccess(BaseModel):
     job_id: tuple[str, UUID]
     output_bgeo: Path
     output_gltf: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -217,6 +221,7 @@ class ExportSuccess(BaseModel):
     job_id: tuple[str, UUID]
     output_path: Path
     output_zip: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -262,6 +267,7 @@ class AvatarExportSuccess(BaseModel):
     avatar_id: UUID
     output_path: Path
     output_zip: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -340,6 +346,7 @@ class AvatarUploadSuccess(BaseModel):
     output_thumbnail: Path
     output_skelref: Path
     output_joint_paths: Path | None
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -401,6 +408,7 @@ class AvatarAutorigSuccess(BaseModel):
     avatar_id: UUID
     output_bgeo: Path
     output_gltf: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -457,6 +465,7 @@ class AvatarMappingSuccess(BaseModel):
     avatar_id: UUID
     output_bgeo: Path
     output_gltf: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -470,3 +479,4 @@ class AvatarMappingSuccess(BaseModel):
 
 class HoudiniError(BaseModel):
     error_message: str
+    node_errors: HoudiniNodeErrors
