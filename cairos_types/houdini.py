@@ -7,7 +7,7 @@ import json
 
 from cairos_types.skeleton import CairosWorkSkelMapping
 
-HoudiniNodeErrors: TypeAlias = dict[str, str] | None
+HoudiniNodeErrors: TypeAlias = dict[str, tuple[str]] | None
 
 class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
