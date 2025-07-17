@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal, TypeAlias, get_args
+from typing import Literal, Sequence, TypeAlias, get_args
 from pydantic.v1 import BaseModel, BaseSettings, root_validator, validator, ConfigDict, Extra
 from uuid import UUID
 from cairos_types.core import Motion
@@ -7,7 +7,7 @@ import json
 
 from cairos_types.skeleton import CairosWorkSkelMapping
 
-HoudiniNodeErrors: TypeAlias = dict[str, tuple[str]] | None
+HoudiniNodeErrors: TypeAlias = dict[str, Sequence[str]] | None
 
 class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
