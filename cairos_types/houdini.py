@@ -1,9 +1,13 @@
 from pathlib import Path
-from typing import Literal, TypeAlias, get_args
+from typing import Literal, Sequence, TypeAlias, get_args
 from pydantic.v1 import BaseModel, BaseSettings, root_validator, validator, ConfigDict, Extra
 from uuid import UUID
 from cairos_types.core import Motion
 import json
+
+from cairos_types.skeleton import CairosWorkSkelMapping
+
+HoudiniNodeErrors: TypeAlias = dict[str, Sequence[str]] | None
 
 class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
@@ -106,6 +110,7 @@ class SequencerSuccess(BaseModel):
     job_id: tuple[str, UUID]
     output_bgeo: Path
     output_gltf: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -127,6 +132,7 @@ class RetargetSuccess(BaseModel):
     job_id: tuple[str, UUID]
     output_bgeo: Path
     output_gltf: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -215,6 +221,7 @@ class ExportSuccess(BaseModel):
     job_id: tuple[str, UUID]
     output_path: Path
     output_zip: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -232,6 +239,50 @@ class ExportRequest(BaseModel):
     data: ExportDataWrapper
 
 ExportType: TypeAlias = Literal['.glb', '.fbx', '.zip']
+
+
+class AvatarExportConfig(BaseHoudiniConfig):
+    scene_path: Path
+    # since we have a single hip file, that will be used for several operations
+    # a node graph prefix is handy
+    prefix: str = "/obj/export_avatar"
+    data_input_node: str = f"{prefix}/export/RPC_DATA_COMES_HERE"
+    render_top_node: str = f"{prefix}/topnet1"
+
+
+class AvatarExportData(BaseModel):
+    avatar_path: Path
+    output_path: Path
+    output_zip: Path
+
+class AvatarExportDataWrapper(BaseModel):
+    input_data: AvatarExportData
+
+    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
+        # TODO
+        self_as_dict = json.loads(self.json())
+        return self_as_dict
+
+class AvatarExportSuccess(BaseModel):
+    avatar_id: UUID
+    output_path: Path
+    output_zip: Path
+    node_errors: HoudiniNodeErrors
+
+    @root_validator
+    def check_paths_exist(cls, values):
+        if not values['output_path'].is_dir():
+            raise ValueError(f'Output path does not exist at {values["output_path"]}')
+        if not values['output_zip'].is_file():
+            raise ValueError(f'Output zip does not exist at {values["output_zip"]}')
+
+        return values
+
+class AvatarExportRequest(BaseModel):
+    avatar_id: UUID
+    config: AvatarExportConfig
+    context: Context
+    data: AvatarExportDataWrapper
 
 class AvatarUploadConfig(BaseHoudiniConfig):
     scene_path: Path
@@ -264,8 +315,6 @@ class AvatarUploadData(BaseModel):
             raise ValueError(f'output_thumbnail field should be a path to a file with `.png` extension.')
         if not values['output_skelref'].suffix == '.png':
             raise ValueError(f'output_skelref field should be a path to a file with `.png` extension.')
-        if not values['output_joint_paths'].suffix == '.csv':
-            raise ValueError(f'output_joint_paths field should be a path to a file with `.csv` extension.')
         return values
 
     # overriding init to correctly hint acceptable types for mapping and play
@@ -277,7 +326,7 @@ class AvatarUploadData(BaseModel):
                  output_gltf: Path,
                  output_thumbnail: Path,
                  output_skelref: Path,
-                 output_joint_paths: Path):
+                 output_joint_paths: Path | None = None):
         d = locals()
         d.pop('self')
         super().__init__(**d)
@@ -296,7 +345,8 @@ class AvatarUploadSuccess(BaseModel):
     output_gltf: Path
     output_thumbnail: Path
     output_skelref: Path
-    output_joint_paths: Path
+    output_joint_paths: Path | None
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -305,9 +355,6 @@ class AvatarUploadSuccess(BaseModel):
 
         if not values['output_gltf'].is_file():
             raise ValueError(f'No glTF file found at path {values["output_gltf"]}')
-
-        if not values['output_joint_paths'].is_file():
-            raise ValueError(f'No csv file found at path {values["output_joint_paths"]}')
 
         # These are commented out temporarily, while we figure out how to
         # prevent OpenGL ROP from crashing hython
@@ -361,6 +408,7 @@ class AvatarAutorigSuccess(BaseModel):
     avatar_id: UUID
     output_bgeo: Path
     output_gltf: Path
+    node_errors: HoudiniNodeErrors
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -372,6 +420,63 @@ class AvatarAutorigSuccess(BaseModel):
 
         return values
 
+class AvatarMappingConfig(BaseHoudiniConfig):
+    scene_path: Path
+    prefix: str = '/obj/mapping'
+    data_input_node: str = f'{prefix}/character/RPC_DATA_COMES_HERE'
+    render_top_node: str = f'{prefix}/output'
+
+class AvatarMappingData(BaseHoudiniData):
+    avatar_id: UUID
+    input_avatar: Path
+    output_bgeo: Path
+    output_gltf: Path
+
+    @root_validator
+    def check_files_exist(cls, values):
+        if not values['input_avatar'].is_file():
+            raise ValueError(f'Input file does not exist at {values["input_avatar"]}')
+
+        if not values['output_bgeo'].suffix == '.bgeo':
+            raise ValueError(f'output_bgeo field should be a path to a file with `.bgeo` extension.')
+        if not values['output_gltf'].suffix == '.glb':
+            raise ValueError(f'output_gltf field should be a path to a file with `.glb` extension.')
+
+        return values
+
+
+class AvatarMappingDataWrapper(BaseHoudiniData):
+    avatar: AvatarMappingData
+    mapping: CairosWorkSkelMapping
+
+    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
+        # TODO
+        self_as_dict = json.loads(self.json())
+        return self_as_dict
+
+
+class AvatarMappingRequest(BaseModel):
+    avatar_id: UUID
+    config: AvatarMappingConfig
+    context: Context
+    data: AvatarMappingDataWrapper
+
+class AvatarMappingSuccess(BaseModel):
+    avatar_id: UUID
+    output_bgeo: Path
+    output_gltf: Path
+    node_errors: HoudiniNodeErrors
+
+    @root_validator
+    def check_paths_exist(cls, values):
+        if not values['output_bgeo'].is_file():
+            raise ValueError(f'Path to bgeo file does not exist at {values["output_bgeo"]}')
+
+        if not values['output_gltf'].is_file():
+            raise ValueError(f'Path to glTF file does not exist at {values["output_gltf"]}')
+
+        return values
 
 class HoudiniError(BaseModel):
     error_message: str
+    node_errors: HoudiniNodeErrors
