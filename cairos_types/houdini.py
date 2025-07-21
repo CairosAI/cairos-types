@@ -111,6 +111,7 @@ class SequencerSuccess(BaseModel):
     output_bgeo: Path
     output_gltf: Path
     node_errors: HoudiniNodeErrors
+    temp_scene: Path | None
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -133,6 +134,7 @@ class RetargetSuccess(BaseModel):
     output_bgeo: Path
     output_gltf: Path
     node_errors: HoudiniNodeErrors
+    temp_scene: Path | None
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -223,6 +225,7 @@ class ExportSuccess(BaseModel):
     output_path: Path
     output_zip: Path
     node_errors: HoudiniNodeErrors
+    temp_scene: Path | None
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -270,6 +273,7 @@ class AvatarExportSuccess(BaseModel):
     output_path: Path
     output_zip: Path
     node_errors: HoudiniNodeErrors
+    temp_scene: Path | None
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -349,6 +353,7 @@ class AvatarUploadSuccess(BaseModel):
     output_skelref: Path
     output_joint_paths: Path | None
     node_errors: HoudiniNodeErrors
+    temp_scene: Path | None
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -411,6 +416,7 @@ class AvatarAutorigSuccess(BaseModel):
     output_bgeo: Path
     output_gltf: Path
     node_errors: HoudiniNodeErrors
+    temp_scene: Path | None
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -468,6 +474,7 @@ class AvatarMappingSuccess(BaseModel):
     output_bgeo: Path
     output_gltf: Path
     node_errors: HoudiniNodeErrors
+    temp_scene: Path | None
 
     @root_validator
     def check_paths_exist(cls, values):
@@ -482,3 +489,4 @@ class AvatarMappingSuccess(BaseModel):
 class HoudiniError(BaseModel):
     error_message: str
     node_errors: HoudiniNodeErrors
+    temp_scene: Path | None
