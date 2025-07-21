@@ -211,8 +211,9 @@ class ExportData(BaseModel):
 
 class ExportDataWrapper(BaseModel):
     input_data: ExportData
+    components: list[str]
 
-    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
+    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]] | list[str]]:
         # TODO
         self_as_dict = json.loads(self.json())
         return self_as_dict
@@ -257,8 +258,9 @@ class AvatarExportData(BaseModel):
 
 class AvatarExportDataWrapper(BaseModel):
     input_data: AvatarExportData
+    components: list[str]
 
-    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]]]:
+    def convert_to_hou_format(self) -> dict[str, dict[str, str | list[str | int | float]] | list[str]]:
         # TODO
         self_as_dict = json.loads(self.json())
         return self_as_dict
