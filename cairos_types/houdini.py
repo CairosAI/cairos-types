@@ -430,19 +430,19 @@ class AvatarMappingConfig(BaseHoudiniConfig):
 
 class AvatarMappingData(BaseHoudiniData):
     avatar_id: UUID
-    input_avatar: Path
-    output_bgeo: Path
-    output_gltf: Path
+    bgeo_to_overwrite: Path
+    gltf_to_overwrite: Path
 
     @root_validator
     def check_files_exist(cls, values):
-        if not values['input_avatar'].is_file():
-            raise ValueError(f'Input file does not exist at {values["input_avatar"]}')
-
-        if not values['output_bgeo'].suffix == '.bgeo':
-            raise ValueError(f'output_bgeo field should be a path to a file with `.bgeo` extension.')
-        if not values['output_gltf'].suffix == '.glb':
-            raise ValueError(f'output_gltf field should be a path to a file with `.glb` extension.')
+        if not values['bgeo_to_overwrite'].is_file():
+            raise ValueError('bgeo_to_overwrite should be an existing file.')
+        if not values['bgeo_to_overwrite'].suffix == '.bgeo':
+            raise ValueError(f'bgeo_to_overwrite field should be a path to a file with `.bgeo` extension.')
+        if not values['gltf_to_overwrite'].is_file():
+            raise ValueError('gltf_to_overwrite should be an existing file.')
+        if not values['gltf_to_overwrite'].suffix == '.glb':
+            raise ValueError(f'gltf_to_overwrite field should be a path to a file with `.glb` extension.')
 
         return values
 
