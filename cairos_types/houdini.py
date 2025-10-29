@@ -4,10 +4,20 @@ from pydantic.v1 import BaseModel, BaseSettings, root_validator, validator, Conf
 from uuid import UUID
 from cairos_types.core import Motion
 import json
+from enum import Enum
 
 from cairos_types.skeleton import CairosWorkSkelMapping
 
 HoudiniNodeErrors: TypeAlias = dict[str, Sequence[str]] | None
+
+class FileType(Enum):
+    fbx = '.fbx'
+    bgeo = '.bgeo'
+    bgeosc = '.bgeo.sc'
+    gltf = '.glb'
+    png = '.png'
+    csv = '.csv'
+    zip = '.zip'
 
 class BaseHoudiniConfig(BaseSettings):
     server_port: int = 18861
@@ -242,8 +252,19 @@ class ExportRequest(BaseModel):
     context: Context
     data: ExportDataWrapper
 
-ExportType: TypeAlias = Literal['.glb', '.fbx', '.zip']
+class ExportType(Enum):
+    glb = 1
+    fbx = 2
+    zip = 3
 
+    def file_type(self) -> FileType:
+        match self:
+            case ExportType.glb:
+                return FileType.gltf
+            case ExportType.fbx:
+                return FileType.fbx
+            case ExportType.zip:
+                return FileType.zip
 
 class AvatarExportConfig(BaseHoudiniConfig):
     scene_path: Path
